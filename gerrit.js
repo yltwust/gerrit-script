@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Gerrit Auto Review and Cherry-pick
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Automate review and cherry-pick tasks in Gerrit
 // @author       longtao.yan
 // @match        https://git.i-tetris.com/c/*
