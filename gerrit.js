@@ -12,7 +12,6 @@
 
     // 添加Reviewers并发送Code-Review +1
     function reviewAndAddReviewers(apiInterface,changeId, callback) {
-        // 假设GrRestApiHelper有一个方法send来发送请求
         const reviewers = localStorage.getItem('gerritReviewers').split(',')
         .map(r => r.trim())
         .filter(r => r && !r.startsWith('#')); // 过滤掉以 # 开头的reviewers
@@ -85,18 +84,7 @@
             }
         });
     }
-
-    function extractChangeId() {
-        const span = queryShadowDom(document.body, '#output');
-        if (span.textContent.includes('Change-Id:')) {
-            const match = span.textContent.match(/Change-Id:\s*(\S+)/);
-            if (match) {
-                return match[1]; // 返回找到的Change-Id值
-            }
-        }
-        return null; // 如果没找到，返回null
-    }
-
+    
     function queryShadowDom(root, selector) {
         // 检查当前节点是否匹配所需的选择器
         if (root.matches && root.matches(selector)) {
