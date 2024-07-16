@@ -9,10 +9,19 @@
 
 (function() {
     'use strict';
+    let reviewersKey, branchesKey;
 
+    function initializeGlobals() {
+        const changeActions = queryShadowDom(document.body, 'gr-change-actions');
+        const project = changeActions.change.project;
+        const keyPrefix = project.includes("cores") ? 'gerritCores' : 'gerrit';
+        reviewersKey = keyPrefix + 'Reviewers';
+        branchesKey = keyPrefix + 'Branches';
+    }
+    
     // 添加Reviewers并发送Code-Review +1
     function reviewAndAddReviewers(apiInterface,changeId, callback) {
-        const reviewers = localStorage.getItem('gerritReviewers').split(',')
+        const reviewers = localStorage.getItem(reviewersKey).split(',')
         .map(r => r.trim())
         .filter(r => r && !r.startsWith('#')); // 过滤掉以 # 开头的reviewers
 
@@ -41,10 +50,10 @@
     // Cherry-Pick到目标分支
     function cherryPickAndReview(apiInterface,changeId) {
         const commitMessage = queryShadowDom(document.body, '#output').textContent;
-        const branches = localStorage.getItem('gerritBranches').split(',')
+        const branches = localStorage.getItem(branchesKey).split(',')
         .map(b => b.trim())
         .filter(b => b && !b.startsWith('#')); // 过滤掉以 # 开头的branches
-        const reviewers = localStorage.getItem('gerritReviewers').split(',')
+        const reviewers = localStorage.getItem(reviewersKey).split(',')
         .map(r => r.trim())
         .filter(r => r && !r.startsWith('#')); // 过滤掉以 # 开头的reviewers
 
@@ -170,11 +179,11 @@
     <div id="configDialog" style="position: fixed; top: 10vh; left: 50%; transform: translateX(-50%); width: 350px; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1000;">
         <div style="margin-bottom: 20px;">
             <label for="reviewersInput" style="display: block; font-weight: bold; margin-bottom: 5px;">Reviewers (comma separated):</label>
-            <textarea id="reviewersInput" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px; resize: vertical;">${localStorage.getItem('gerritReviewers') || ''}</textarea>
+            <textarea id="reviewersInput" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px; resize: vertical;">${localStorage.getItem(reviewersKey) || ''}</textarea>
         </div>
         <div style="margin-bottom: 20px;">
             <label for="branchesInput" style="display: block; font-weight: bold; margin-bottom: 5px;">Target Branches (comma separated):</label>
-            <textarea id="branchesInput" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px; resize: vertical;">${localStorage.getItem('gerritBranches') || ''}</textarea>
+            <textarea id="branchesInput" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px; resize: vertical;">${localStorage.getItem(branchesKey) || ''}</textarea>
         </div>
         <button id="saveConfigButton" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; margin-right: 10px; cursor: pointer;">Save & Start</button>
         <button id="cancelConfigButton" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
@@ -211,8 +220,8 @@
     function saveConfig() {
         const reviewers = document.getElementById('reviewersInput').value;
         const branches = document.getElementById('branchesInput').value;
-        localStorage.setItem('gerritReviewers', reviewers);
-        localStorage.setItem('gerritBranches', branches);
+        localStorage.setItem(reviewersKey, reviewers);
+        localStorage.setItem(branchesKey, branches);
         document.getElementById('configDialog').remove();
         showLogDialog(); // 显示日志对话框
         startReviewAndCherryPick(); // 保存配置后执行 Review 和 Cherry-pick
